@@ -1,4 +1,5 @@
-dist
+dist/*
+!dist/favicon.ico
 .DS_Store
 **.swp
 bower_components
