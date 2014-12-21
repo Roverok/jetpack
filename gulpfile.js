@@ -9,11 +9,13 @@ var gulp        = require('gulp'),
     stylus      = require('gulp-stylus'),
     fs          = require('fs'),
     del         = require('del'),
-    nib         = require('nib')
+    nib         = require('nib'),
+    livereload  = require('gulp-livereload'),
     karma       = require('karma').server;
 
 var paths = {
     templates: ['src/templates/**/*.jade'],
+    templates_includes: ['src/templates/includes/**/*.jade'],                                 
     scripts: ['src/coffee/*.coffee'], 
     images: ['src/img/**/*'],
     styles: ['src/styles/**/*.styl']
@@ -39,14 +41,16 @@ gulp.task('scripts', ['clean'], function() {
         .pipe(watch(paths.scripts), ['script'])
         .pipe(coffee({bare: true}))
         .pipe(uglify())
-        .pipe(gulp.dest('./dist/js/'));  
+        .pipe(gulp.dest('./dist/js/'))
+        .pipe(livereload());
 });
 
 gulp.task('images', function() {
   gulp.src(paths.images)
     .pipe(watch(paths.images))
     .pipe(imagemin({optimizationLevel: 5}))
-    .pipe(gulp.dest('./dist/img'));
+    .pipe(gulp.dest('./dist/img'))
+    .pipe(livereload());;
 });
 
 gulp.task('styles', function () {
@@ -56,7 +60,8 @@ gulp.task('styles', function () {
       use: nib(),
       compress: true
     }))
-    .pipe(gulp.dest('./dist/styles'));
+    .pipe(gulp.dest('./dist/styles'))
+    .pipe(livereload());
 });
 
 gulp.task('templates', function() {
@@ -68,6 +73,12 @@ gulp.task('templates', function() {
       locals: {}
     }))
     .pipe(gulp.dest('./dist/'))
+    .pipe(livereload());
 });
 
-gulp.task('default', ['clean', 'templates', 'scripts', 'images', 'styles']);
+gulp.task('watch', function() {
+  gulp.watch(paths.templates_includes, ['templates']);
+  livereload.listen();
+});
+
+gulp.task('default', ['clean', 'watch', 'templates', 'scripts', 'images', 'styles']);
